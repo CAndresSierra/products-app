@@ -19,13 +19,14 @@ export class ProductsService {
   async findAll(paginationDto: PaginationDto) {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
-    const total = await this.prisma.product.count();
+    const total = await this.prisma.product.count({ where: { available: true } });
     const totalPages = Math.ceil(total / limit);
 
     return {
       data: await this.prisma.product.findMany({
         take: limit,
         skip,
+        where: { available: true }
       }),
       metadata: {
         page,
@@ -38,7 +39,7 @@ export class ProductsService {
 
   async findOne(id: number) {
     const product = await this.prisma.product.findUnique({
-      where: { id }
+      where: { id, available: true }
     })
     if (!product) throw new NotFoundException(`Product with id: ${id} not found`);
 
@@ -61,9 +62,6 @@ export class ProductsService {
   async remove(id: number) {
     await this.findOne(id);
 
-    // return await this.prisma.product.delete({
-    //   where: { id }
-    // })
 
     const product = await this.prisma.product.update({
       where: { id },
