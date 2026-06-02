@@ -61,8 +61,17 @@ export class ProductsService {
   async remove(id: number) {
     await this.findOne(id);
 
-    return await this.prisma.product.delete({
-      where: { id }
+    // return await this.prisma.product.delete({
+    //   where: { id }
+    // })
+
+    const product = await this.prisma.product.update({
+      where: { id },
+      data: {
+        available: false
+      }
     })
+
+    return product
   }
 }
