@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from 'src/prisma.service';
@@ -45,8 +45,17 @@ export class ProductsService {
     return product
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(id: number, updateProductDto: UpdateProductDto) {
+    if (!Object.keys(updateProductDto).length || (updateProductDto.name === null && updateProductDto.price === null)) {
+      throw new BadRequestException("No update data provided");
+    }
+    await this.findOne(id);
+
+    return await this.prisma.product.update({
+      where: { id },
+      data: updateProductDto
+    });
+
   }
 
   remove(id: number) {
