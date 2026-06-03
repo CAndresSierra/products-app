@@ -47,14 +47,14 @@ export class ProductsService {
   }
 
   async update(id: number, updateProductDto: UpdateProductDto) {
-    if (!Object.keys(updateProductDto).length || (updateProductDto.name === null && updateProductDto.price === null)) {
-      throw new BadRequestException("No update data provided");
-    }
+
+    const { id: __, ...data } = updateProductDto
+
     await this.findOne(id);
 
     return await this.prisma.product.update({
       where: { id },
-      data: updateProductDto
+      data: data
     });
 
   }
